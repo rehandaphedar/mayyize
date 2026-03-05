@@ -1,74 +1,68 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"strings"
 
 	qul "git.sr.ht/~rehandaphedar/genanki-go-utils/pkg/qul"
 )
 
-func renderAllInstances(wordIndex qul.WordIndex, metadataAyahByVerseKey map[string]qul.MetadataAyah, phrase qul.Phrase) string {
-	var stringsBuilder strings.Builder
-	stringsBuilder.WriteString(`<div class="instances">`)
+func renderInstances(wordIndex qul.WordIndex, metadataAyahByVerseKey map[string]qul.MetadataAyah, phrase qul.Phrase) []Instance {
+	var instances []Instance
 
 	for verseKey := range phrase.Ayah {
 		ranges := phrase.Ayah[verseKey]
-		for instanceIndex, instance := range ranges {
-			from := instance[0]
-			to := instance[1]
-			context := renderContext(wordIndex, metadataAyahByVerseKey, verseKey, from)
-			phrase := renderPhrase(wordIndex, verseKey, from, to)
-			continuation := renderContinuation(wordIndex, metadataAyahByVerseKey, verseKey, to)
+		for instanceInVerseIndex, instanceInVerse := range ranges {
+			from := instanceInVerse[0]
+			to := instanceInVerse[1]
+			instanceInVerseNumber := instanceInVerseIndex + 1
 
-			stringsBuilder.WriteString(`<div class="instance">`)
-			fmt.Fprintf(&stringsBuilder, `<div class="verse-key">%s - instance %d in chapter</div>`, verseKey, instanceIndex+1)
-			stringsBuilder.WriteString(`<div class="quran-text">`)
-			stringsBuilder.WriteString(context)
-			stringsBuilder.WriteString(phrase)
-			stringsBuilder.WriteString(continuation)
-			stringsBuilder.WriteString(`</div>`)
-			stringsBuilder.WriteString(`</div>`)
+			instances = append(instances, Instance{
+				VerseKey:        verseKey,
+				InstanceInVerse: instanceInVerseNumber,
+				Phrase:          renderPhrase(wordIndex, verseKey, from, to),
+				Context:         renderContext(wordIndex, metadataAyahByVerseKey, verseKey, from),
+				Continuation:    renderContinuation(wordIndex, metadataAyahByVerseKey, verseKey, to),
+			})
 		}
 	}
 
-	stringsBuilder.WriteString("</div>")
-	return stringsBuilder.String()
+	return instances
 }
 
-func renderPhrase(wordIndex qul.WordIndex, verseKey string, from, to int) string {
-	return renderRange(wordIndex, qul.PhraseSource{Key: verseKey, From: from, To: to}, "phrase")
+func renderPhrase(wordIndex qul.WordIndex, verseKey string, from, to int) []string {
+	return renderRange(wordIndex, qul.Source{Key: verseKey, From: from, To: to})
 }
 
-func renderContext(wordIndex qul.WordIndex, metadataAyahByVersekey map[string]qul.MetadataAyah, verseKey string, from int) string {
+func renderContext(wordIndex qul.WordIndex, metadataAyahByVersekey map[string]qul.MetadataAyah, verseKey string, from int) []string {
 	if from == 1 {
 		previousVerseKey, found := qul.GetPreviousVerseKey(metadataAyahByVersekey, verseKey)
 		if found {
-			return renderVerseFrom(wordIndex, metadataAyahByVersekey, previousVerseKey, 1, "context")
+			return renderVerseFrom(wordIndex, metadataAyahByVersekey, previousVerseKey, 1)
 		}
-		return `<span class="opening">[The Opening of the Qurʾān]</span>`
+		// TODO: Better Context, Continuation edge cases?
+		return []string{}
 	}
-	return renderRange(wordIndex, qul.PhraseSource{Key: verseKey, From: 1, To: from - 1}, "context")
+	return renderRange(wordIndex, qul.Source{Key: verseKey, From: 1, To: from - 1})
 }
 
-func renderContinuation(wordIndex qul.WordIndex, metadataAyahByVerseKey map[string]qul.MetadataAyah, verseKey string, to int) string {
+func renderContinuation(wordIndex qul.WordIndex, metadataAyahByVerseKey map[string]qul.MetadataAyah, verseKey string, to int) []string {
 	words := wordIndex.VerseWords[verseKey]
 
 	if to+1 == len(words) {
 		nextVerseKey, found := qul.GetNextVerseKey(metadataAyahByVerseKey, verseKey)
 		if found {
-			return renderVerseFrom(wordIndex, metadataAyahByVerseKey, nextVerseKey, 1, "continuation")
+			return renderVerseFrom(wordIndex, metadataAyahByVerseKey, nextVerseKey, 1)
 		}
-		return `<span class="conclusion">[The Conclusion of the Qurʾān]</span>`
+		return []string{}
 	}
-	return renderVerseFrom(wordIndex, metadataAyahByVerseKey, verseKey, to+1, "continuation")
+	return renderVerseFrom(wordIndex, metadataAyahByVerseKey, verseKey, to+1)
 }
 
-func renderVerseFrom(wordIndex qul.WordIndex, metadataAyahByVerseKey map[string]qul.MetadataAyah, verseKey string, from int, class string) string {
-	return renderRange(wordIndex, qul.PhraseSource{Key: verseKey, From: from, To: metadataAyahByVerseKey[verseKey].WordsCount}, class)
+func renderVerseFrom(wordIndex qul.WordIndex, metadataAyahByVerseKey map[string]qul.MetadataAyah, verseKey string, from int) []string {
+	return renderRange(wordIndex, qul.Source{Key: verseKey, From: from, To: metadataAyahByVerseKey[verseKey].WordsCount})
 }
 
-func renderRange(wordIndex qul.WordIndex, source qul.PhraseSource, class string) string {
+func renderRange(wordIndex qul.WordIndex, source qul.Source) []string {
 	words := wordIndex.VerseWords[source.Key]
 
 	if source.To >= len(words) {
@@ -84,5 +78,5 @@ func renderRange(wordIndex qul.WordIndex, source qul.PhraseSource, class string)
 	for i := source.From - 1; i < source.To; i++ {
 		parts = append(parts, words[i])
 	}
-	return fmt.Sprintf(`<span class="%s">%s</div>`, class, strings.Join(parts, " "))
+	return parts
 }

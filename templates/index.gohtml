@@ -1,0 +1,83 @@
+<!-- Phrase Front -->
+{{define "phrase_front"}}
+<div class="quran-text">{{ template "phrase" .Phrase}}</div>
+{{ end }}
+
+<!-- Phrase Back -->
+{{define "phrase_back"}}
+<!--  -->
+{{ template "phrase_front" . }}
+<hr />
+{{ template "instances" . }} {{ end}}
+
+<!-- Verse Front -->
+{{ define "verse_front" }}
+<div class="verse-key">{{ .VerseKey }}</div>
+<div class="quran-text">
+	{{ template "context" .Context}}
+	<!-- . -->
+	{{ template "phrase" .Phrase}}
+</div>
+{{ end }}
+
+<!-- Verse Back -->
+{{ define "verse_back" }}
+<div class="verse-key">{{ .VerseKey }}</div>
+<div class="quran-text">
+	{{ template "context" .Context}}
+	<!-- . -->
+	{{ template "phrase" .Phrase}}
+	<!-- . -->
+	{{ template "continuation" .Continuation}}
+	<!-- . -->
+</div>
+<hr />
+{{ template "instances" . }} {{end}}
+
+<!-- Instances -->
+{{ define "instances" }}
+<div class="instances-info">
+	{{.Count}} instances across {{.Chapters}} chapter(s)
+</div>
+<div class="instances">
+	{{ range .Instances }}
+	<div class="instance">
+		<div class="instance-info">
+			{{ .VerseKey }} (Instance {{ .InstanceInVerse }} in verse)
+		</div>
+		<div class="quran-text">
+			{{ template "context" .Context}}
+			<!-- . -->
+			{{ template "phrase" .Phrase}}
+			<!-- . -->
+			{{ template "continuation" .Continuation}}
+			<!-- . -->
+		</div>
+	</div>
+	{{end }}
+</div>
+{{end}}
+
+<!-- Context -->
+{{ define "context" }}
+<span class="context"> {{ template "range" . }} </span>
+{{ end }}
+
+<!-- Phrase -->
+{{ define "phrase" }}
+<span class="phrase"> {{ template "range" . }} </span>
+{{ end }}
+
+<!-- Continuation -->
+{{ define "continuation" }}
+<span class="continuation"> {{ template "range" . }} </span>
+{{ end }}
+
+<!-- Range -->
+{{ define "range" }}
+<!--  -->
+{{ range . }}
+<span class="quran-word"> {{ . }} </span>
+{{ end }}
+<!--  -->
+{{ end }}

@@ -1,47 +1,52 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
+	"os"
 	"strconv"
 
+	dbfix "git.sr.ht/~rehandaphedar/genanki-go-utils/pkg/dbfix"
 	qul "git.sr.ht/~rehandaphedar/genanki-go-utils/pkg/qul"
 	genanki "github.com/npcnixel/genanki-go"
 )
 
 func main() {
-	modelIdPhrase := flag.Int64("model-id-phrase", int64(1805162761), "ID of the Phrase Model")
-	modelNamePhrase := flag.String("model-name-phrase", "Mutashābihāt - Phrase", "Name of the Phrase Model")
+	modelIdPhrase := flag.Int64("model-id-phrase", int64(1805162761), "ID of the phrase model")
+	modelNamePhrase := flag.String("model-name-phrase", "mayyize - Phrase", "Name of the phrase model")
 
-	deckIdPhrase := flag.Int64("deck-id-phrase", int64(1748329869), "ID of the Phrase Deck")
-	deckNamePhrase := flag.String("deck-name-phrase", "Mutashābihāt::Phrase Recognition", "Name of the Phrase Deck")
-	deckDescriptionPhrase := flag.String("deck-description-phrase", "Recall all instances of the phrase.", "Description of the Phrase Deck")
+	deckIdPhrase := flag.Int64("deck-id-phrase", int64(1748329869), "ID of the phrase deck")
+	deckNamePhrase := flag.String("deck-name-phrase", "mayyize::Phrase Recognition", "Name of the phrase peck")
+	deckDescriptionPhrase := flag.String("deck-description-phrase", "Recall all instances of the phrase.", "Description of the phrase deck")
 
-	modelIdVerse := flag.Int64("model-id-verse", int64(1357701653), "ID of the Verse Model")
-	modelNameVerse := flag.String("model-name-verse", "Mutashābihāt - Verse", "Name of the Verse Model")
+	modelIdVerse := flag.Int64("model-id-verse", int64(1357701653), "ID of the verse model")
+	modelNameVerse := flag.String("model-name-verse", "mayyize - Verse", "Name of the verse model")
 
-	deckIdVerse := flag.Int64("deck-id-verse", int64(1850992899), "ID of the Verse Deck")
-	deckNameVerse := flag.String("deck-name-verse", "Mutashābihāt::Verse Completion", "Name of the Verse Deck")
+	deckIdVerse := flag.Int64("deck-id-verse", int64(1850992899), "ID of the verse deck")
+	deckNameVerse := flag.String("deck-name-verse", "mayyize::Verse Completion", "Name of the verse deck")
 	deckDescriptionVerse := flag.String("deck-description-verse", "Recall the correct instance of the phrase to complete the verse.", "Description of the Verse Deck")
 
-	outputPath := flag.String("output", "out/quran_mutashabihat.apkg", "Output filepath")
+	outputPath := flag.String("output", "out/mayyize.apkg", "Output filepath")
 
 	cssPath := flag.String("css", "templates/style.css", "Path to CSS file")
-	QfmtPhrasePath := flag.String("qfmt-phrase", "templates/qfmt_phrase.html", "Path to Phrase Qfmt HTML Template")
-	AfmtPhrasePath := flag.String("afmt-phrase", "templates/afmt_phrase.html", "Path to Phrase Afmt HTML Template")
-	QfmtVersePath := flag.String("qfmt-verse", "templates/qfmt_verse.html", "Path to Verse Qfmt HTML Template")
-	AfmtVersePath := flag.String("afmt-verse", "templates/afmt_verse.html", "Path to Verse Afmt HTML Template")
+	templatePath := flag.String("template", "templates/index.gohtml", "Path to template file")
+	templatePhraseFrontName := flag.String("template-phrase-front", "phrase_front", "Name of the phrase front template")
+	templatePhraseBackName := flag.String("template-phrase-back", "phrase_back", "Name of the phrase back template")
+	templateVerseFrontName := flag.String("template-verse-front", "verse_front", "Name of the verse front template")
+	templateVerseBackName := flag.String("template-verse-back", "verse_back", "Name of the verse back template")
 
-	wordsPath := flag.String("words", "metadata/qpc-hafs-word-by-word.json", "Path to words JSON")
-	phrasesPath := flag.String("phrases", "metadata/phrases.json", "Path to phrases JSON")
-	layoutPath := flag.String("layout", "metadata/qpc-v4-tajweed-15-lines.db", "Path to Mushaf DB")
-	metadataAyahPath := flag.String("metadata-ayah", "metadata/quran-metadata-ayah.json", "Path to Ayah Metadata")
-	metadataJuzPath := flag.String("metadata-juz", "metadata/quran-metadata-juz.json", "Path to Juz Metadata")
-	metadataHizbPath := flag.String("metadata-hizb", "metadata/quran-metadata-hizb.json", "Path to Hizb Metadata")
-	metadataRubPath := flag.String("metadata-rub", "metadata/quran-metadata-rub.json", "Path to Rub Metadata")
-	metadataManzilPath := flag.String("metadata-manzil", "metadata/quran-metadata-manzil.json", "Path to Manzil Metadata")
-	metadataRukuPath := flag.String("metadata-ruku", "metadata/quran-metadata-ruku.json", "Path to Ruku Metadata")
+	wordsPath := flag.String("words", "metadata/qpc-hafs-word-by-word.json", "Path to words data")
+	phrasesPath := flag.String("phrases", "metadata/phrases.json", "Path to phrases data")
+	layoutPath := flag.String("layout", "metadata/qpc-v4-tajweed-15-lines.db", "Path to layout data")
+	metadataAyahPath := flag.String("metadata-ayah", "metadata/quran-metadata-ayah.json", "Path to ayah metadata")
+	metadataJuzPath := flag.String("metadata-juz", "metadata/quran-metadata-juz.json", "Path to juz metadata")
+	metadataHizbPath := flag.String("metadata-hizb", "metadata/quran-metadata-hizb.json", "Path to hizb metadata")
+	metadataRubPath := flag.String("metadata-rub", "metadata/quran-metadata-rub.json", "Path to rub metadata")
+	metadataManzilPath := flag.String("metadata-manzil", "metadata/quran-metadata-manzil.json", "Path to manzil metadata")
+	metadataRukuPath := flag.String("metadata-ruku", "metadata/quran-metadata-ruku.json", "Path to ruku metadata")
 
 	var tagFormat qul.TagFormat
 
@@ -109,34 +114,24 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	qfmtPhrase, err := readFile(*QfmtPhrasePath)
+
+	tmpl, err := template.ParseFiles(*templatePath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("parse template files: %v", err)
 	}
-	afmtPhrase, err := readFile(*AfmtPhrasePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	qfmtVerse, err := readFile(*QfmtVersePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	afmtVerse, err := readFile(*AfmtVersePath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	var buf bytes.Buffer
 
 	modelPhrase := genanki.NewModel(*modelIdPhrase, *modelNamePhrase).
 		SetCSS(css).
 		AddField(genanki.Field{Name: "PhraseID"}).
-		AddField(genanki.Field{Name: "Chapters"}).
 		AddField(genanki.Field{Name: "Count"}).
-		AddField(genanki.Field{Name: "Phrase"}).
-		AddField(genanki.Field{Name: "AllInstances"}).
+		AddField(genanki.Field{Name: "Chapters"}).
+		AddField(genanki.Field{Name: "Front"}).
+		AddField(genanki.Field{Name: "Back"}).
 		AddTemplate(genanki.Template{
 			Name: "Phrase Recognition",
-			Qfmt: qfmtPhrase,
-			Afmt: afmtPhrase,
+			Qfmt: "{{Front}}",
+			Afmt: "{{Back}}",
 		})
 	deckPhrase := genanki.NewDeck(*deckIdPhrase, *deckNamePhrase, *deckDescriptionPhrase)
 
@@ -145,66 +140,113 @@ func main() {
 		AddField(genanki.Field{Name: "NoteID"}).
 		AddField(genanki.Field{Name: "VerseKey"}).
 		AddField(genanki.Field{Name: "PhraseID"}).
-		AddField(genanki.Field{Name: "Chapters"}).
+		AddField(genanki.Field{Name: "InstanceInVerse"}).
 		AddField(genanki.Field{Name: "Count"}).
-		AddField(genanki.Field{Name: "Phrase"}).
-		AddField(genanki.Field{Name: "Context"}).
-		AddField(genanki.Field{Name: "Continuation"}).
-		AddField(genanki.Field{Name: "AllInstances"}).
+		AddField(genanki.Field{Name: "Chapters"}).
+		AddField(genanki.Field{Name: "Front"}).
+		AddField(genanki.Field{Name: "Back"}).
 		AddTemplate(genanki.Template{
 			Name: "Verse Completion",
-			Qfmt: qfmtVerse,
-			Afmt: afmtVerse,
+			Qfmt: "{{Front}}",
+			Afmt: "{{Back}}",
 		})
 	deckVerse := genanki.NewDeck(*deckIdVerse, *deckNameVerse, *deckDescriptionVerse)
 
 	for phraseId, phrase := range phrases {
-		allInstances := renderAllInstances(index.Word, metadataAyahByVerseKey, phrase)
+		instances := renderInstances(index.Word, metadataAyahByVerseKey, phrase)
+
+		templateDataPhrase := TemplateDataPhrase{
+			Count:     phrase.Count,
+			Chapters:  phrase.Surahs,
+			Phrase:    renderRange(index.Word, phrase.Source),
+			Instances: instances,
+		}
+
+		templateErrorMessage := "error while executing template %s with data %+v: %v"
+
+		err := tmpl.ExecuteTemplate(&buf, *templatePhraseFrontName, templateDataPhrase)
+		if err != nil {
+			log.Printf(templateErrorMessage, *templatePhraseFrontName, templateDataPhrase, err)
+		}
+		phraseFront := buf.String()
+		buf.Reset()
+
+		err = tmpl.ExecuteTemplate(&buf, *templatePhraseBackName, templateDataPhrase)
+		if err != nil {
+			log.Printf(templateErrorMessage, *templatePhraseBackName, templateDataPhrase, err)
+		}
+		phraseBack := buf.String()
+		buf.Reset()
 
 		notePhrase := genanki.NewNote(
 			modelPhrase.ID,
 			[]string{
 				phraseId,
-				strconv.Itoa(phrase.Surahs),
-				strconv.Itoa(phrase.Count),
-				renderRange(index.Word, phrase.Source, "phrase"),
-				allInstances,
+				strconv.Itoa(templateDataPhrase.Count),
+				strconv.Itoa(templateDataPhrase.Chapters),
+				phraseFront,
+				phraseBack,
 			},
 			qul.BuildTagsForPhrase(index, phrase),
 		)
+		notePhrase.ID = dbfix.GenerateIntId() // Default ID generated by genanki-go is potentially negative
 		deckPhrase.AddNote(notePhrase)
 
 		for verseKey := range phrase.Ayah {
-			instances := phrase.Ayah[verseKey]
+			instancesInVerse := phrase.Ayah[verseKey]
 
-			for instanceIndex, instance := range instances {
-				from := instance[0]
-				to := instance[1]
+			for instanceInVerseIndex, instanceInVerse := range instancesInVerse {
+				from := instanceInVerse[0]
+				to := instanceInVerse[1]
 
 				paddedVerseKey, err := qul.PadVerseKey(verseKey)
 				if err != nil {
 					log.Printf("error while padding verse key %s: %v", verseKey, err)
 					continue
 				}
-				instanceNumber := instanceIndex + 1
-				noteId := fmt.Sprintf("%s_%s_%02d", paddedVerseKey, phraseId, instanceNumber)
+				instanceInVerseNumber := instanceInVerseIndex + 1
+				noteId := fmt.Sprintf("%s_%s_%02d", paddedVerseKey, phraseId, instanceInVerseNumber)
 
-				ayahNote := genanki.NewNote(
+				templateDataVerse := TemplateDataVerse{
+					VerseKey:        verseKey,
+					InstanceInVerse: instanceInVerseNumber,
+					Count:           phrase.Count,
+					Chapters:        phrase.Surahs,
+					Phrase:          renderRange(index.Word, qul.Source{Key: verseKey, From: from, To: to}),
+					Context:         renderContext(index.Word, metadataAyahByVerseKey, verseKey, from),
+					Continuation:    renderContinuation(index.Word, metadataAyahByVerseKey, verseKey, to),
+					Instances:       instances,
+				}
+				err = tmpl.ExecuteTemplate(&buf, *templateVerseFrontName, templateDataVerse)
+				if err != nil {
+					log.Printf(templateErrorMessage, *templateVerseFrontName, templateDataVerse, err)
+				}
+				verseFront := buf.String()
+				buf.Reset()
+
+				err = tmpl.ExecuteTemplate(&buf, *templateVerseBackName, templateDataVerse)
+				if err != nil {
+					log.Printf(templateErrorMessage, *templateVerseBackName, templateDataVerse, err)
+				}
+				verseBack := buf.String()
+				buf.Reset()
+
+				noteVerse := genanki.NewNote(
 					modelVerse.ID,
 					[]string{
 						noteId,
 						verseKey,
 						phraseId,
-						strconv.Itoa(phrase.Surahs),
+						strconv.Itoa(instanceInVerseNumber),
 						strconv.Itoa(phrase.Count),
-						renderRange(index.Word, qul.PhraseSource{Key: verseKey, From: from, To: to}, "phrase"),
-						renderContext(index.Word, metadataAyahByVerseKey, verseKey, from),
-						renderContinuation(index.Word, metadataAyahByVerseKey, verseKey, to),
-						allInstances,
+						strconv.Itoa(phrase.Surahs),
+						verseFront,
+						verseBack,
 					},
 					index.Tag.Verse[verseKey],
 				)
-				deckVerse.AddNote(ayahNote)
+				noteVerse.ID = dbfix.GenerateIntId() // Default ID generated by genanki-go is potentially negative
+				deckVerse.AddNote(noteVerse)
 			}
 		}
 	}
@@ -212,5 +254,15 @@ func main() {
 	pkg := genanki.NewPackage([]*genanki.Deck{deckPhrase, deckVerse}).AddModel(modelPhrase).AddModel(modelVerse)
 	if err := pkg.WriteToFile(*outputPath); err != nil {
 		log.Fatalf("write package to %s: %v", *outputPath, err)
+	}
+
+	outputFixedPath := *outputPath + ".fixed"
+
+	if err := dbfix.FixDb(*outputPath, outputFixedPath); err != nil {
+		log.Fatalf("fix db: %v", err)
+	}
+
+	if err := os.Rename(outputFixedPath, *outputPath); err != nil {
+		log.Fatalf("replace output: %v", err)
 	}
 }

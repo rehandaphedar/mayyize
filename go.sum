@@ -1,0 +1,6 @@
+git.sr.ht/~rehandaphedar/genanki-go-utils v1.0.2 h1:+5LHV656Ujw0oGodwjk4ITQCJWlcwc7qobSs6bE2g2Y=
+git.sr.ht/~rehandaphedar/genanki-go-utils v1.0.2/go.mod h1:9HeXYBZgEMPhfJZ4p1B5co+cQ6plfvt58p9XXx/boSs=
+github.com/mattn/go-sqlite3 v1.14.34 h1:3NtcvcUnFBPsuRcno8pUtupspG/GM+9nZ88zgJcp6Zk=
+github.com/mattn/go-sqlite3 v1.14.34/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
+github.com/npcnixel/genanki-go v0.0.0-20251208223537-b9b15a4e9586 h1:P28x77ifDAUyf2QHshjbmItQZ6+0yj8F/aUHCqABLss=
+github.com/npcnixel/genanki-go v0.0.0-20251208223537-b9b15a4e9586/go.mod h1:W1FEWpdtv1QOKhnSMvYQmyqqmCnlXr6HsAxVW060zvA=
