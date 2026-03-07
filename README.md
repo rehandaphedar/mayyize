@@ -2,6 +2,8 @@
 
 A program to generate Anki flashcards for Mutashābihāt (similar/confusing verses) in the Qurʾān.
 
+It is available on AnkiWeb as [mayyize](https://ankiweb.net/shared/info/1065363749).
+
 # Installation
 
 ```sh
