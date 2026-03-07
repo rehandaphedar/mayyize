@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "KFGQPC HAFS Uthmanic Script";
+  src: url("_kfgqpc-hafs-uthmanic-script.ttf");
+}
+
 html {
 	overflow-y: scroll;
 }

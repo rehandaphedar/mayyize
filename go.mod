@@ -7,4 +7,7 @@ require (
 	github.com/npcnixel/genanki-go v0.0.0-20251208223537-b9b15a4e9586
 )
 
-require github.com/mattn/go-sqlite3 v1.14.34 // indirect
+require (
+	github.com/mattn/go-sqlite3 v1.14.34 // indirect
+	go.yaml.in/yaml/v4 v4.0.0-rc.4
+)

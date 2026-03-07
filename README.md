@@ -18,6 +18,7 @@ The documentation for usage and flags can be accessed by running `mayyize -h`.
 - The `-words` data can be obtained from QUL's [Ayah by ayah and word by text of Quran](https://qul.tarteel.ai/resources/quran-script)
 - The `-layout` data can be obtained from QUL's [Mushaf Layout Resources](https://qul.tarteel.ai/resources/mushaf-layout)
 - The `-metadata-*` can be obtained from QUL's [Quran data, surahs, ayahs, words, juz etc.](https://qul.tarteel.ai/resources/quran-metadata)
+- The `-media-config` is a YAML file with a list of objects with the keys `src` and `as`. The filepaths are resolved relative to the config file.
 
 # Note Types
 

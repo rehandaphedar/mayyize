@@ -25,3 +25,8 @@ type Instance struct {
 	Context         []string
 	Continuation    []string
 }
+
+type MediaEntry struct {
+	Src string `yaml:"src"`
+	As  string `yaml:"as"`
+}

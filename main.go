@@ -6,10 +6,13 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"os"
+	"path/filepath"
 	"strconv"
 
-	qul "git.sr.ht/~rehandaphedar/genanki-go-utils/pkg/qul"
-	genanki "github.com/npcnixel/genanki-go"
+	"git.sr.ht/~rehandaphedar/genanki-go-utils/pkg/qul"
+	"github.com/npcnixel/genanki-go"
+	"go.yaml.in/yaml/v4"
 )
 
 func main() {
@@ -29,22 +32,23 @@ func main() {
 
 	outputPath := flag.String("output", "out/mayyize.apkg", "Output filepath")
 
-	cssPath := flag.String("css", "templates/style.css", "Path to CSS file")
-	templatePath := flag.String("template", "templates/index.gohtml", "Path to template file")
+	templateHtmlPath := flag.String("template-html", "templates/index.gohtml", "Path to template file")
+	templateCssPath := flag.String("template-css", "templates/style.css", "Path to CSS file")
+
 	templatePhraseFrontName := flag.String("template-phrase-front", "phrase_front", "Name of the phrase front template")
 	templatePhraseBackName := flag.String("template-phrase-back", "phrase_back", "Name of the phrase back template")
 	templateVerseFrontName := flag.String("template-verse-front", "verse_front", "Name of the verse front template")
 	templateVerseBackName := flag.String("template-verse-back", "verse_back", "Name of the verse back template")
 
-	wordsPath := flag.String("words", "metadata/qpc-hafs-word-by-word.json", "Path to words data")
-	phrasesPath := flag.String("phrases", "metadata/phrases.json", "Path to phrases data")
-	layoutPath := flag.String("layout", "metadata/qpc-v4-tajweed-15-lines.db", "Path to layout data")
-	metadataAyahPath := flag.String("metadata-ayah", "metadata/quran-metadata-ayah.json", "Path to ayah metadata")
-	metadataJuzPath := flag.String("metadata-juz", "metadata/quran-metadata-juz.json", "Path to juz metadata")
-	metadataHizbPath := flag.String("metadata-hizb", "metadata/quran-metadata-hizb.json", "Path to hizb metadata")
-	metadataRubPath := flag.String("metadata-rub", "metadata/quran-metadata-rub.json", "Path to rub metadata")
-	metadataManzilPath := flag.String("metadata-manzil", "metadata/quran-metadata-manzil.json", "Path to manzil metadata")
-	metadataRukuPath := flag.String("metadata-ruku", "metadata/quran-metadata-ruku.json", "Path to ruku metadata")
+	wordsPath := flag.String("words", "data/qpc-hafs-word-by-word.json", "Path to words data")
+	phrasesPath := flag.String("phrases", "data/phrases.json", "Path to phrases data")
+	layoutPath := flag.String("layout", "data/qpc-v4-tajweed-15-lines.db", "Path to layout data")
+	metadataAyahPath := flag.String("metadata-ayah", "data/quran-metadata-ayah.json", "Path to ayah metadata")
+	metadataJuzPath := flag.String("metadata-juz", "data/quran-metadata-juz.json", "Path to juz metadata")
+	metadataHizbPath := flag.String("metadata-hizb", "data/quran-metadata-hizb.json", "Path to hizb metadata")
+	metadataRubPath := flag.String("metadata-rub", "data/quran-metadata-rub.json", "Path to rub metadata")
+	metadataManzilPath := flag.String("metadata-manzil", "data/quran-metadata-manzil.json", "Path to manzil metadata")
+	metadataRukuPath := flag.String("metadata-ruku", "data/quran-metadata-ruku.json", "Path to ruku metadata")
 
 	var tagFormat qul.TagFormat
 
@@ -56,6 +60,8 @@ func main() {
 	tagFormat.Rub = flag.String("tag-format-rub", "quran::rub::%03d", "Format of the rub tag. %d is replaced with the rub number.")
 	tagFormat.Manzil = flag.String("tag-format-manzil", "quran::manzil::%d", "Format of the manzil tag. %d is replaced with the manzil number.")
 	tagFormat.Ruku = flag.String("tag-format-ruku", "quran::ruku::%03d", "Format of the ruku tag. %d is replaced with the ruku number.")
+
+	mediaConfigPath := flag.String("media-config", "media/config.yaml", "Path to media config")
 
 	flag.Parse()
 
@@ -108,12 +114,12 @@ func main() {
 		metadataAyahByVerseKey[metadataAyahEntry.VerseKey] = metadataAyahEntry
 	}
 
-	css, err := readFile(*cssPath)
+	css, err := readFile(*templateCssPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tmpl, err := template.ParseFiles(*templatePath)
+	tmpl, err := template.ParseFiles(*templateHtmlPath)
 	if err != nil {
 		log.Fatalf("parse template files: %v", err)
 	}
@@ -248,6 +254,31 @@ func main() {
 	}
 
 	pkg := genanki.NewPackage([]*genanki.Deck{deckPhrase, deckVerse}).AddModel(modelPhrase).AddModel(modelVerse)
+
+	if *mediaConfigPath != "" {
+		mediaConfigDir := filepath.Dir(*mediaConfigPath)
+
+		mediaConfigData, err := os.ReadFile(*mediaConfigPath)
+		if err != nil {
+			log.Fatalf("read media config: %v", err)
+		}
+
+		var mediaEntries []MediaEntry
+		if err := yaml.Unmarshal(mediaConfigData, &mediaEntries); err != nil {
+			log.Fatalf("parse media config: %v", err)
+		}
+
+		for _, mediaEntry := range mediaEntries {
+			src := filepath.Join(mediaConfigDir, mediaEntry.Src)
+			as := mediaEntry.As
+			mediaEntryData, err := os.ReadFile(src)
+			if err != nil {
+				log.Fatalf("read media entry %s: %v", src, err)
+			}
+			pkg.AddMedia(as, mediaEntryData)
+		}
+	}
+
 	if err := pkg.WriteToFile(*outputPath); err != nil {
 		log.Fatalf("write package to %s: %v", *outputPath, err)
 	}
