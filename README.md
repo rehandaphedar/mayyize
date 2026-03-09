@@ -4,6 +4,8 @@ A program to generate Anki flashcards for Mutashābihāt (similar/confusing vers
 
 It is available on AnkiWeb as [mayyize](https://ankiweb.net/shared/info/1065363749).
 
+Alternatively, it is available in the `out/` folder.
+
 # Installation
 
 ```sh
