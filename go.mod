@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	git.sr.ht/~rehandaphedar/genanki-go-utils v1.0.2
-	github.com/npcnixel/genanki-go v0.0.0-20251208223537-b9b15a4e9586
+	github.com/npcnixel/genanki-go v0.0.0-20260305182613-460b4074eb38
 )
 
 require (

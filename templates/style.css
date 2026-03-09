@@ -1,6 +1,6 @@
 @font-face {
-  font-family: "KFGQPC HAFS Uthmanic Script";
-  src: url("_kfgqpc-hafs-uthmanic-script.ttf");
+	font-family: "KFGQPC HAFS Uthmanic Script";
+	src: url("_kfgqpc-hafs-uthmanic-script.ttf");
 }
 
 html {
@@ -30,6 +30,8 @@ hr {
 	background: currentColor;
 	opacity: 0.2;
 	height: 2px;
+
+	border: none;
 }
 
 .verse-key,
