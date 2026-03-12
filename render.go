@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"sort"
 
 	qul "git.sr.ht/~rehandaphedar/genanki-go-utils/pkg/qul"
 )
@@ -25,6 +26,9 @@ func renderInstances(wordIndex qul.WordIndex, metadataAyahByVerseKey map[string]
 			})
 		}
 	}
+	sort.Slice(instances, func(i, j int) bool {
+		return compareInstances(instances[i], instances[j])
+	})
 
 	return instances
 }
