@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"git.sr.ht/~rehandaphedar/genanki-go-utils/pkg/qul"
+	"git.sr.ht/~rehandaphedar/genanki-go-utils/v2/pkg/qul"
 )
 
 func loadJSON(path string, v any) error {

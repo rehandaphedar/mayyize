@@ -4,7 +4,7 @@ import (
 	"log"
 	"sort"
 
-	qul "git.sr.ht/~rehandaphedar/genanki-go-utils/pkg/qul"
+	qul "git.sr.ht/~rehandaphedar/genanki-go-utils/v2/pkg/qul"
 )
 
 func renderInstances(wordIndex qul.WordIndex, metadataAyahByVerseKey map[string]qul.MetadataAyah, phrase qul.Phrase) []Instance {

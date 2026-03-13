@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"git.sr.ht/~rehandaphedar/genanki-go-utils/pkg/qul"
+	"git.sr.ht/~rehandaphedar/genanki-go-utils/v2/pkg/qul"
 	"github.com/npcnixel/genanki-go"
 	"go.yaml.in/yaml/v4"
 )

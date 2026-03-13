@@ -1,5 +1,5 @@
-git.sr.ht/~rehandaphedar/genanki-go-utils v1.3.0 h1:q7PaVu0kaMSwMex/KjSBAJHurAgNmvFSz4jyOUi2bxE=
-git.sr.ht/~rehandaphedar/genanki-go-utils v1.3.0/go.mod h1:9HeXYBZgEMPhfJZ4p1B5co+cQ6plfvt58p9XXx/boSs=
+git.sr.ht/~rehandaphedar/genanki-go-utils/v2 v2.0.0 h1:uCXlM39obqoHmXbX4m1kdim+MPD3lEVo9L0/ki9Eu68=
+git.sr.ht/~rehandaphedar/genanki-go-utils/v2 v2.0.0/go.mod h1:GoY+C5fsxUqzbzlyaP82prSJF6rPy32MTADW7r4LGSM=
 github.com/mattn/go-sqlite3 v1.14.34 h1:3NtcvcUnFBPsuRcno8pUtupspG/GM+9nZ88zgJcp6Zk=
 github.com/mattn/go-sqlite3 v1.14.34/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
 github.com/npcnixel/genanki-go v0.0.0-20260305182613-460b4074eb38 h1:Rtx1wOMaSAzV966Evc6TBzVcEqmf9kxPYwdnuRyXxog=
