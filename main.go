@@ -141,7 +141,7 @@ func main() {
 
 	modelVerse := genanki.NewModel(*modelIdVerse, *modelNameVerse).
 		SetCSS(css).
-		AddField(genanki.Field{Name: "NoteID"}).
+		AddField(genanki.Field{Name: "PhraseInstanceID"}).
 		AddField(genanki.Field{Name: "VerseKey"}).
 		AddField(genanki.Field{Name: "PhraseID"}).
 		AddField(genanki.Field{Name: "InstanceInVerse"}).
@@ -193,6 +193,9 @@ func main() {
 			},
 			qul.BuildTagsForPhrase(index, phrase),
 		)
+
+		noteIdBasePhrase := fmt.Sprintf("%d_%s", modelPhrase.ID, phraseId)
+		notePhrase.ID = qul.GenerateID(noteIdBasePhrase)
 		deckPhrase.AddNote(notePhrase)
 
 		for verseKey := range phrase.Ayah {
@@ -208,7 +211,7 @@ func main() {
 					continue
 				}
 				instanceInVerseNumber := instanceInVerseIndex + 1
-				noteId := fmt.Sprintf("%s_%s_%02d", paddedVerseKey, phraseId, instanceInVerseNumber)
+				phraseInstanceId := fmt.Sprintf("%s_%s_%02d", paddedVerseKey, phraseId, instanceInVerseNumber)
 
 				templateDataVerse := TemplateDataVerse{
 					VerseKey:        verseKey,
@@ -237,7 +240,7 @@ func main() {
 				noteVerse := genanki.NewNote(
 					modelVerse.ID,
 					[]string{
-						noteId,
+						phraseInstanceId,
 						verseKey,
 						phraseId,
 						strconv.Itoa(instanceInVerseNumber),
@@ -248,6 +251,9 @@ func main() {
 					},
 					index.Tag.Verse[verseKey],
 				)
+
+				noteIdBaseVerse := fmt.Sprintf("%d_%s", modelVerse.ID, phraseInstanceId)
+				noteVerse.ID = qul.GenerateID(noteIdBaseVerse)
 				deckVerse.AddNote(noteVerse)
 			}
 		}
